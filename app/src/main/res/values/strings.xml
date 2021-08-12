@@ -5,4 +5,9 @@
     <string name="baca_file">Baca File</string>
     <string name="hapus_file">Hapus File</string>
     <string name="hasil_baca">Hasil Baca File</string>
+    <string name="latihan_persistance">Latihan Persistence</string>
+    <string name="internal_storage">INTERNAL STORAGE</string>
+    <string name="external_storage">EXTERNAL STORAGE</string>
+    <string name="ini_external_storage">External Storage</string>
+    <string name="ini_internal_storage">Internal Storage</string>
 </resources>
