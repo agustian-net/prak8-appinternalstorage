@@ -1,0 +1,2 @@
+rootProject.name = "Prak8-AppInternalStorage"
+include ':app'
