@@ -46,24 +46,20 @@ public class ExternalActivity extends AppCompatActivity implements View.OnClickL
         bacaFile.setOnClickListener(this);
         hapusFile.setOnClickListener(this);
 
-        if (Build.VERSION.SDK_INT >= 23){
-            if (periksaIzinPenyimpanan()) {
-                bacaFile();
-            }
-        }else {
+        if (periksaIzinPenyimpanan()) {
             bacaFile();
         }
     }
 
-    public void onRequestPermissionResult(int requestCode, @NonNull String[] permission, @NonNull int[] grantResults){
-        super.onRequestPermissionsResult(requestCode, permission, grantResults);
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode){
             case REQUEST_CODE_STORAGE:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED){
                     bacaFile();
                 }
-                else
-                {
+                else {
                     tampilkanDialogKonfirmasiPenyimpanan();
                 }
         }
@@ -74,7 +70,10 @@ public class ExternalActivity extends AppCompatActivity implements View.OnClickL
             if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
                 return  true;
             }else {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                ActivityCompat.requestPermissions(this, new String[]{
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.READ_EXTERNAL_STORAGE
+                        },
                         REQUEST_CODE_STORAGE);
                 return false;
             }
@@ -90,7 +89,13 @@ public class ExternalActivity extends AppCompatActivity implements View.OnClickL
         if (!Environment.MEDIA_MOUNTED.equals(state)){
             return;
         }
-        File file = new File(Environment.getExternalStorageDirectory(), FILENAME);
+
+        File path = Environment.getExternalStorageDirectory();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT){
+            path = getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
+        }
+
+        File file = new File(path, FILENAME);
 
         FileOutputStream outputStream = null;
         try {
@@ -111,7 +116,11 @@ public class ExternalActivity extends AppCompatActivity implements View.OnClickL
         if(!Environment.MEDIA_MOUNTED.equals(state)){
             return;
         }
-        File file = new File(Environment.getExternalStorageDirectory(), FILENAME) ;
+        File path = Environment.getExternalStorageDirectory();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT){
+            path = getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
+        }
+        File file = new File(path, FILENAME);
 
         FileOutputStream outputStream = null;
         try {
@@ -126,8 +135,11 @@ public class ExternalActivity extends AppCompatActivity implements View.OnClickL
     }
 
     void bacaFile() {
-        File sdcard = Environment.getExternalStorageDirectory();
-        File file = new File(sdcard, FILENAME);
+        File path = Environment.getExternalStorageDirectory();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT){
+            path = getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
+        }
+        File file = new File(path, FILENAME);
 
         if (file.exists()) {
 
@@ -151,7 +163,11 @@ public class ExternalActivity extends AppCompatActivity implements View.OnClickL
     }
 
     void hapusFile() {
-        File file = new File(Environment.getExternalStorageDirectory(), FILENAME);
+        File path = Environment.getExternalStorageDirectory();
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+            path = getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
+        }
+        File file = new File(path, FILENAME);
         if (file.exists()) {
             file.delete();
         }
