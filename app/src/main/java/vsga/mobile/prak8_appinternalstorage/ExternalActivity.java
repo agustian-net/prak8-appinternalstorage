@@ -1,13 +1,19 @@
 package vsga.mobile.prak8_appinternalstorage;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -18,6 +24,8 @@ import java.io.IOException;
 public class ExternalActivity extends AppCompatActivity implements View.OnClickListener {
 
     public static final String FILENAME = "namafile.txt";
+
+    public static final int REQUEST_CODE_STORAGE = 100;
     //deklarasi variabel
     Button buatFile, ubahFile, bacaFile, hapusFile;
     TextView textBaca;
@@ -25,7 +33,7 @@ public class ExternalActivity extends AppCompatActivity implements View.OnClickL
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_internal);
+        setContentView(R.layout.activity_external);
 
         buatFile = findViewById(R.id.buttonBuatFile);
         ubahFile = findViewById(R.id.buttonUbahFile);
@@ -37,6 +45,42 @@ public class ExternalActivity extends AppCompatActivity implements View.OnClickL
         ubahFile.setOnClickListener(this);
         bacaFile.setOnClickListener(this);
         hapusFile.setOnClickListener(this);
+
+        if (Build.VERSION.SDK_INT >= 23){
+            if (periksaIzinPenyimpanan()) {
+                bacaFile();
+            }
+        }else {
+            bacaFile();
+        }
+    }
+
+    public void onRequestPermissionResult(int requestCode, @NonNull String[] permission, @NonNull int[] grantResults){
+        super.onRequestPermissionsResult(requestCode, permission, grantResults);
+        switch (requestCode){
+            case REQUEST_CODE_STORAGE:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                    bacaFile();
+                }
+                else
+                {
+                    tampilkanDialogKonfirmasiPenyimpanan();
+                }
+        }
+    }
+
+    public boolean periksaIzinPenyimpanan(){
+        if(Build.VERSION.SDK_INT >= 23){
+            if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
+                return  true;
+            }else {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        REQUEST_CODE_STORAGE);
+                return false;
+            }
+        }else {
+            return true;
+        }
     }
 
     void buatFile() {
@@ -117,10 +161,20 @@ public class ExternalActivity extends AppCompatActivity implements View.OnClickL
         jalankanPerintah(v.getId());
     }
 
+    void tampilkanDialogKonfirmasiPenyimpanan(){
+        new AlertDialog.Builder(this)
+                .setTitle("Akses Memory Eksternal")
+                .setMessage("Apakah anda yakin akan mengakses memeory?")
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setPositiveButton(android.R.string.yes, (dialog, which) ->
+                        buatFile()).setNegativeButton(android.R.string.no, null).show();
+    }
+
     @SuppressLint("NonConstantResourceId")
     public void jalankanPerintah(int id) {
         switch (id) {
             case R.id.buttonBuatFile:
+                tampilkanDialogKonfirmasiPenyimpanan();
                 buatFile();
                 break;
             case R.id.buttonBacaFile:
